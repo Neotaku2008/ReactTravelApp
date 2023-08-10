@@ -1,48 +1,53 @@
-image: node:16
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
 
-pipelines:
-    default:
-      - step:
-          name: Install dependencies
-          caches:
-            - node
-          script:
-            - yarn install
-            - npm install matchmedia-polyfill --save
-      - step:
-          name: Code quality
-          caches:
-            - node
-          script:
-            - yarn prettier --write --ignore-path .prettierignore "src/**"
-      - step:
-          name: Build application
-          caches:
-            - node
-          script:
-            - yarn build
-      - step:
-          name: Run tests
-          caches:
-            - node
-          script:
-            - yarn test
-      - step:
-          name: Publish Docker image to Docker Hub
-          script:
-            - docker login -u $DockerUser -p $DockerPass
-            - docker build -t $DockerUser/travelmaster:latest .
-            - docker push $DockerUser/travelmaster:latest            
-      - step:
-          name: Create ZIP file
-          script:
-            - git archive --format=tar.gz master -o apptravelmaster.tar.gz
-          artifacts:
-            - apptravelmaster.tar.gz
-options:
-  docker: true  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: |
+          yarn install
+          npm install matchmedia-polyfill --save
+
+      - name: Code quality
+        run: yarn prettier --write --ignore-path .prettierignore "src/**"
+
+      - name: Build application
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Publish Docker image to Docker Hub
+        env:
+          DockerUser: ${{ secrets.DockerUser }}
+          DockerPass: ${{ secrets.DockerPass }}
+        run: |
+          echo $DockerPass | docker login -u $DockerUser --password-stdin
+          docker build -t $DockerUser/travelmaster:latest .
+          docker push $DockerUser/travelmaster:latest
+
+      - name: Create ZIP file
+        run: git archive --format=tar.gz main -o apptravelmaster.tar.gz
+
+        # Use this artifact section if you want to upload the ZIP file as an artifact
+        # artifacts:
+        #   paths:
+        #     - apptravelmaster.tar.gz
+
+  options:
+    docker: true
