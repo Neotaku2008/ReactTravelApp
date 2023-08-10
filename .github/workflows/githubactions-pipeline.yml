@@ -34,8 +34,8 @@ jobs:
 
       - name: Publish Docker image to Docker Hub
         env:
-          DockerUser: ${{ secrets.DockerUser }}
-          DockerPass: ${{ secrets.DockerPass }}
+          DockerUser: ${{ secrets.DOCKERUSER }}
+          DockerPass: ${{ secrets.DOCKERPASS }}
         run: |
           echo $DockerPass | docker login -u $DockerUser --password-stdin
           docker build -t $DockerUser/travelmaster:latest .
