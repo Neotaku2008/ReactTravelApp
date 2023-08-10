@@ -1,0 +1,43 @@
+image: node:16
+
+pipelines:
+    default:
+      - step:
+          name: Install dependencies
+          caches:
+            - node
+          script:
+            - yarn install
+            - npm install matchmedia-polyfill --save
+      - step:
+          name: Code quality
+          caches:
+            - node
+          script:
+            - yarn prettier --write --ignore-path .prettierignore "src/**"
+      - step:
+          name: Build application
+          caches:
+            - node
+          script:
+            - yarn build
+      - step:
+          name: Run tests
+          caches:
+            - node
+          script:
+            - yarn test
+      - step:
+          name: Publish Docker image to Docker Hub
+          script:
+            - docker login -u $DockerUser -p $DockerPass
+            - docker build -t $DockerUser/travelmaster:latest .
+            - docker push $DockerUser/travelmaster:latest            
+      - step:
+          name: Create ZIP file
+          script:
+            - git archive --format=tar.gz master -o apptravelmaster.tar.gz
+          artifacts:
+            - apptravelmaster.tar.gz
+options:
+  docker: true  
