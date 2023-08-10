@@ -48,6 +48,3 @@ jobs:
         # artifacts:
         #   paths:
         #     - apptravelmaster.tar.gz
-
-options:
-  docker: true
