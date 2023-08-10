@@ -49,5 +49,5 @@ jobs:
         #   paths:
         #     - apptravelmaster.tar.gz
 
-  options:
-    docker: true
+options:
+  docker: true
