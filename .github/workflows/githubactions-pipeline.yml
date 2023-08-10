@@ -1,5 +1,10 @@
 image: node:16
 
+on:
+  push:
+    branches:
+      - main
+
 pipelines:
     default:
       - step:
