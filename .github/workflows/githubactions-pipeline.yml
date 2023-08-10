@@ -9,6 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        deploy:
+          - staging
+          - production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -44,7 +50,12 @@ jobs:
       - name: Create ZIP file
         run: git archive --format=tar.gz main -o apptravelmaster.tar.gz
 
-        # Use this artifact section if you want to upload the ZIP file as an artifact
-        # artifacts:
-        #   paths:
-        #     - apptravelmaster.tar.gz
+      - name: Deploy
+        if: matrix.deploy == 'staging'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install --global vercel
+          vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+          vercel build --token=$VERCEL_TOKEN
+          vercel deploy --token=$VERCEL_TOKEN
