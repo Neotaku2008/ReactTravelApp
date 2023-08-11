@@ -9,9 +9,6 @@ on:
 jobs:
   deploy_production:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow == 'CI/CD Pipeline'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
